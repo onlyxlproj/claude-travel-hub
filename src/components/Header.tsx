@@ -44,7 +44,6 @@ export default function Header() {
             <div className="hidden md:flex items-center space-x-8">
               <Link href="/tours" className="nav-link">Tours</Link>
               <Link href="/news" className="nav-link">News</Link>
-              <Link href="/about" className="nav-link">About</Link>
               <Link href="/contact" className="nav-link">Contact</Link>
 
               {user ? (
@@ -105,7 +104,6 @@ export default function Header() {
               <div className="flex flex-col space-y-4">
                 <Link href="/tours" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Tours</Link>
                 <Link href="/news" className="nav-link" onClick={() => setMobileMenuOpen(false)}>News</Link>
-                <Link href="/about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About</Link>
                 <Link href="/contact" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
 
                 {user ? (

@@ -9,7 +9,7 @@ interface TourCardProps {
 
 export default function TourCard({ tour }: TourCardProps) {
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('en-IN', {
       month: 'short',
       day: 'numeric',
     })
@@ -30,7 +30,7 @@ export default function TourCard({ tour }: TourCardProps) {
           </div>
         )}
         <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-900 text-sm font-semibold px-2 py-1 rounded">
-          ${tour.price.toLocaleString()}
+          ₹{tour.price.toLocaleString('en-IN')}
         </div>
       </div>
 
