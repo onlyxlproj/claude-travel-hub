@@ -27,10 +27,35 @@ function ToursContent() {
     sortBy: 'featured',
   })
 
+  // Computes which type ID is active so the dropdown selects it visually
+  const activeTypeId = tourTypes.find(
+    t => t.id === (searchParams.get('type') || filters.type) || 
+         t.name.toLowerCase() === (searchParams.get('type') || filters.type).toLowerCase()
+  )?.id || filters.type
+
+  // Cleans up the URL parameter when selecting from the sidebar manually to avoid conflicts
+  const handleTypeChange = (newType: string) => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('type')) {
+      params.delete('type')
+      const newSearch = params.toString()
+      window.history.replaceState(null, '', `/tours${newSearch ? `?${newSearch}` : ''}`)
+    }
+    setFilters({ ...filters, type: newType })
+  }
+
   useEffect(() => {
     if (isDemoMode()) {
       let filtered = [...demoTours]
       const query = searchParams.get('q')?.toLowerCase()
+      const urlType = searchParams.get('type') || ''
+      const activeTypeInput = urlType || filters.type
+
+      let resolvedTypeId = activeTypeInput
+      const foundType = demoTourTypes.find(
+        t => t.id === activeTypeInput || t.name.toLowerCase() === activeTypeInput.toLowerCase()
+      )
+      if (foundType) resolvedTypeId = foundType.id
 
       if (query) {
         filtered = filtered.filter(
@@ -38,8 +63,8 @@ function ToursContent() {
         )
       }
 
-      if (filters.type) {
-        filtered = filtered.filter(t => t.tour_type_id === filters.type)
+      if (resolvedTypeId) {
+        filtered = filtered.filter(t => t.tour_type_id === resolvedTypeId)
       }
 
       if (filters.minPrice) {
@@ -73,10 +98,35 @@ function ToursContent() {
     const fetchData = async () => {
       setLoading(true)
 
+      // 1. Fetch tour types first to resolve textual category links (e.g., 'beach') to database IDs
+      const typesRes = await supabase.from('tour_types').select('*')
+      const typesData = typesRes.data || []
+      setTourTypes(typesData)
+
+      // 2. Resolve active type identifier 
+      const urlType = searchParams.get('type') || ''
+      const activeTypeInput = urlType || filters.type
+      
+      let resolvedTypeId = activeTypeInput
+      if (activeTypeInput) {
+        const foundType = typesData.find(
+          t => t.id === activeTypeInput || t.name.toLowerCase() === activeTypeInput.toLowerCase()
+        )
+        if (foundType) resolvedTypeId = foundType.id
+      }
+
+      // 3. Build tours query base
       let query = supabase.from('tours').select('*')
 
-      if (filters.type) {
-        query = query.eq('tour_type_id', filters.type)
+      // Fix for Issue #2: Apply Search parameter matching against name or country
+      const searchQuery = searchParams.get('q') || ''
+      if (searchQuery) {
+        query = query.or(`name.ilike.%${searchQuery}%,country.ilike.%${searchQuery}%`)
+      }
+
+      // Fix for Issue #3: Filter by resolved type ID
+      if (resolvedTypeId) {
+        query = query.eq('tour_type_id', resolvedTypeId)
       }
 
       if (filters.minPrice) {
@@ -101,13 +151,9 @@ function ToursContent() {
         query = query.order('featured', { ascending: false })
       }
 
-      const [toursRes, typesRes] = await Promise.all([
-        query,
-        supabase.from('tour_types').select('*'),
-      ])
+      const toursRes = await query
 
       if (toursRes.data) setTours(toursRes.data)
-      if (typesRes.data) setTourTypes(typesRes.data)
       setLoading(false)
     }
 
@@ -115,6 +161,9 @@ function ToursContent() {
   }, [searchParams, filters])
 
   const clearFilters = () => {
+    if (window.location.search) {
+      window.history.replaceState(null, '', '/tours')
+    }
     setFilters({
       type: '',
       minPrice: '',
@@ -124,7 +173,13 @@ function ToursContent() {
     })
   }
 
-  const hasActiveFilters = filters.type || filters.minPrice || filters.maxPrice || filters.country
+  const hasActiveFilters = 
+    searchParams.get('type') || 
+    searchParams.get('q') || 
+    filters.type || 
+    filters.minPrice || 
+    filters.maxPrice || 
+    filters.country
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -155,8 +210,8 @@ function ToursContent() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Tour Type</label>
                     <select
-                      value={filters.type}
-                      onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+                      value={activeTypeId}
+                      onChange={(e) => handleTypeChange(e.target.value)}
                       className="input"
                     >
                       <option value="">All Types</option>
@@ -243,8 +298,8 @@ function ToursContent() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Tour Type</label>
                       <select
-                        value={filters.type}
-                        onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+                        value={activeTypeId}
+                        onChange={(e) => handleTypeChange(e.target.value)}
                         className="input"
                       >
                         <option value="">All Types</option>

@@ -83,7 +83,7 @@ export default function TourDetailPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('en-IN', {
       weekday: 'long',
       month: 'long',
       day: 'numeric',
@@ -185,12 +185,12 @@ export default function TourDetailPage() {
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <Calendar className="h-6 w-6 mx-auto text-primary-600 mb-2" />
                     <p className="text-sm text-gray-500">Start Date</p>
-                    <p className="font-semibold text-gray-900">{new Date(tour.start_date).toLocaleDateString()}</p>
+                    <p className="font-semibold text-gray-900">{new Date(tour.start_date).toLocaleDateString('en-IN')}</p>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <Calendar className="h-6 w-6 mx-auto text-primary-600 mb-2" />
                     <p className="text-sm text-gray-500">End Date</p>
-                    <p className="font-semibold text-gray-900">{new Date(tour.end_date).toLocaleDateString()}</p>
+                    <p className="font-semibold text-gray-900">{new Date(tour.end_date).toLocaleDateString('en-IN')}</p>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <Clock className="h-6 w-6 mx-auto text-primary-600 mb-2" />
@@ -248,7 +248,7 @@ export default function TourDetailPage() {
               <div className="card p-6 sticky top-24">
                 <div className="text-center mb-6">
                   <p className="text-gray-500 text-sm">Starting from</p>
-                  <p className="text-3xl font-bold text-gray-900">${tour.price.toLocaleString()}</p>
+                  <p className="text-3xl font-bold text-gray-900">₹{tour.price.toLocaleString('en-IN')}</p>
                   <p className="text-gray-500 text-sm">per person</p>
                 </div>
 
@@ -270,12 +270,12 @@ export default function TourDetailPage() {
 
                   <div className="border-t pt-4">
                     <div className="flex justify-between text-gray-600 mb-2">
-                      <span>${tour.price.toLocaleString()} x {travelers}</span>
-                      <span>${totalPrice.toLocaleString()}</span>
+                      <span>₹{tour.price.toLocaleString('en-IN')} x {travelers}</span>
+                      <span>₹{totalPrice.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between font-bold text-lg text-gray-900">
                       <span>Total</span>
-                      <span>${totalPrice.toLocaleString()}</span>
+                      <span>₹{totalPrice.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
 
